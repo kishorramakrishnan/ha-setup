@@ -1,0 +1,23 @@
+#This is appended by Ambari TeXas code
+Listen {{ ranger_port }}
+<VirtualHost *:{{ ranger_port }}>
+   ProxyRequests off
+   ProxyPreserveHost on
+   Header add Set-Cookie "ROUTEID=.%{BALANCER_WORKER_ROUTE}e; path=/" env=BALANCER_ROUTE_CHANGED
+   <Proxy balancer://{{ cluster_name }}>
+               BalancerMember {{ ranger_protocol }}://{{ ranger_host_1 }}:{{ ranger_port }} loadfactor=1 route=1
+               BalancerMember {{ ranger_protocol }}://{{ ranger_host_2 }}:{{ ranger_port }} loadfactor=1 route=1
+               Order Deny,Allow
+                Deny from none
+                Allow from all
+                ProxySet lbmethod=byrequests scolonpathdelim=On stickysession=ROUTEID maxattempts=1 failonstatus=500,501,502,503 nofailover=Off
+        </Proxy>
+        <Location /balancer-manager>
+                SetHandler balancer-manager
+                Order deny,allow
+                Allow from all
+        </Location>
+       ProxyPass /balancer-manager !
+       ProxyPass / balancer://{{ cluster_name }}/
+       ProxyPassReverse / balancer://{{ cluster_name }}/
+</VirtualHost>

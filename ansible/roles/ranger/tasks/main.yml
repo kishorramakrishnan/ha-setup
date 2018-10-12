@@ -1,0 +1,54 @@
+---
+- name: simple debug
+  debug: var=ranger_protocol
+- name: get ranger_host
+  uri:
+    url: https://{{ ambari_host }}/ambari/api/v1/clusters/{{ cluster_name }}/services/RANGER/components/RANGER_ADMIN?fields=host_components/HostRoles
+    method: GET
+    user: "{{ ambari_user }}"
+    password: "{{ ambari_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    validate_certs: no
+  register: host_components
+
+- name : get All Ranger hosts
+  set_fact:
+    ranger_hosts: "{{ host_components.json.host_components | map(attribute='HostRoles.public_host_name') | list }}"
+
+- name : debug
+  debug : var=ranger_hosts
+
+- name : get All Ranger Hosts
+  set_fact:
+    ranger_host_1: "{{ ranger_hosts[0] }}"
+    ranger_host_2: "{{ ranger_hosts[1] }}"
+
+- name: Install apache packages
+  yum:
+    name: "{{ webserver_service }}"
+    state: present
+- name: Creates sites-available directory
+  file:
+    path: /etc/{{ webserver_service }}/sites-available
+    state: directory
+    mode: 0777
+
+- name: Creates sites-enabled directory
+  file:
+    path: /etc/{{ webserver_service }}/sites-enabled
+    state: directory
+    mode: 0777
+
+- name: create virtual host file
+  template: src="ranger_loadbalancer.conf.j2" dest="/etc/{{ webserver_service }}/sites-available/{{ domain }}.conf"
+
+- name: create symlinks to enabled virtual hosts
+  command: sudo ln -s /etc/{{ webserver_service }}/sites-available/{{ domain }}.conf /etc/{{ webserver_service }}/sites-enabled/{{ domain }}.conf
+
+- name: Append conf in httpd.conf file
+  lineinfile:
+    path: /etc/{{ webserver_service }}/conf/{{ webserver_service }}.conf
+    line: IncludeOptional sites-enabled/*.conf
+  notify:
+    - restart httpd

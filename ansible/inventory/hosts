@@ -1,0 +1,12 @@
+[all:vars]
+ansible_user=cloudbreak
+cluster_name = ambaritest-181010-225759-lk1-1
+ambari_host = ambari-server.hwx.site
+ambari_user = admin
+ambari_password = admin
+
+
+[ambari]
+ambari-server.hwx.site
+
+
