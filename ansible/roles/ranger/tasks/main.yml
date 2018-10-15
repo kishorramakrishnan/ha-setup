@@ -19,10 +19,18 @@
 - name : debug
   debug : var=ranger_hosts
 
-- name : get All Ranger Hosts
+- name : read yml
+  shell: 'cat unbound.yml | grep \.local-data-ptr | sed "s/\"/ /g" | cut -d ":" -f2- | cut -d " " -f 4'
+  register: local_hosts
+
+- name: set_fact
   set_fact:
-    ranger_host_1: "{{ ranger_hosts[0] }}"
-    ranger_host_2: "{{ ranger_hosts[1] }}"
+    all_hosts: "{{ local_hosts.stdout_lines | list }}"
+
+- name: dynamic hosts
+  set_fact:
+    ranger_host_{{ item.0 }} : "{{ item.1 }}"
+  with_indexed_items: "{{ all_hosts }}"
 
 - name: Install apache packages
   yum:
