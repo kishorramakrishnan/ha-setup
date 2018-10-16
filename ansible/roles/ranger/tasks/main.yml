@@ -1,23 +1,6 @@
 ---
 - name: simple debug
   debug: var=ranger_protocol
-- name: get ranger_host
-  uri:
-    url: https://{{ ambari_host }}/ambari/api/v1/clusters/{{ cluster_name }}/services/RANGER/components/RANGER_ADMIN?fields=host_components/HostRoles
-    method: GET
-    user: "{{ ambari_user }}"
-    password: "{{ ambari_password }}"
-    force_basic_auth: yes
-    return_content: yes
-    validate_certs: no
-  register: host_components
-
-- name : get All Ranger hosts
-  set_fact:
-    ranger_hosts: "{{ host_components.json.host_components | map(attribute='HostRoles.public_host_name') | list }}"
-
-- name : debug
-  debug : var=ranger_hosts
 
 - name : read yml
   shell: 'cat unbound.yml | grep \.local-data-ptr | sed "s/\"/ /g" | cut -d ":" -f2- | cut -d " " -f 4'
