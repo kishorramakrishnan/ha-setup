@@ -7,6 +7,6 @@ ambari_password = admin
 
 
 [ambari]
-ambari-server.hwx.site
+localhost
 
 
