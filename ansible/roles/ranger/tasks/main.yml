@@ -19,25 +19,31 @@
   yum:
     name: "{{ webserver_service }}"
     state: present
+  sudo: yes
+
 - name: Creates sites-available directory
   file:
     path: /etc/{{ webserver_service }}/sites-available
     state: directory
     mode: 0777
+  sudo: yes
 
 - name: Creates sites-enabled directory
   file:
     path: /etc/{{ webserver_service }}/sites-enabled
     state: directory
     mode: 0777
+  sudo: yes
 
 - name: create virtual host file
   template: src="ranger_loadbalancer.conf.j2" dest="/etc/{{ webserver_service }}/sites-available/{{ domain }}.conf"
+  sudo: yes
 
 - name: create symlinks to enabled virtual hosts
   command: sudo ln -s /etc/{{ webserver_service }}/sites-available/{{ domain }}.conf /etc/{{ webserver_service }}/sites-enabled/{{ domain }}.conf
 
 - name: Append conf in httpd.conf file
+  sudo: yes
   lineinfile:
     path: /etc/{{ webserver_service }}/conf/{{ webserver_service }}.conf
     line: IncludeOptional sites-enabled/*.conf
