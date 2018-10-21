@@ -1,0 +1,4 @@
+---
+- hosts: ambari
+  roles:
+    - name: ranger_security
