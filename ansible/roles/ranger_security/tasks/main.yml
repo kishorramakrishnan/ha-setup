@@ -106,9 +106,9 @@
         property_key: ranger.plugin.hbase.policy.rest.url
         property_value: "{{ ranger_url }}"
 
-      - config_type: ranger-hive-security
-        property_key: ranger.plugin.hive.policy.rest.url
-        property_value: "{{ ranger_url }}"
+#      - config_type: ranger-hive-security
+#        property_key: ranger.plugin.hive.policy.rest.url
+#        property_value: "{{ ranger_url }}"
 
       - config_type: ranger-storm-security
         property_key: ranger.plugin.storm.policy.rest.url
