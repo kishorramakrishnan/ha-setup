@@ -62,7 +62,7 @@
     src: /etc/security/keytabs/ranger.ha.keytab
     dest: /etc/security/keytabs/ranger.ha.keytab
     owner: ranger
-    mode: 550
+    mode: '0550'
     group: hadoop
   delegate_to: "{{ item }}"
   with_items: "{{ all_hosts }}"

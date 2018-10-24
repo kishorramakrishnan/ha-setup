@@ -2,3 +2,4 @@
 - hosts: ambari
   roles:
     - name: ranger_security
+  run_once: true
