@@ -18,6 +18,7 @@
     body_format: json
   become: yes
   become_user: root
+  run_once: true
   register: ambari_restart_request
   changed_when: ambari_restart_request.content
   listen: restart stale
