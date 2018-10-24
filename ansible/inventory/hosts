@@ -1,5 +1,6 @@
 [all:vars]
 ansible_user=cloudbreak
+ansible_private_key=/root/.ssh/hw-qe-keypair.pem
 cluster_name = ambaritest-181010-225759-lk1-1
 ambari_host = ambari-server.hwx.site
 ambari_user = admin
