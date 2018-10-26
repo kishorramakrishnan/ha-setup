@@ -1,6 +1,6 @@
 ---
 - name: simple debug
-  debug: var=ranger_protocol
+  debug: var=oozie_protocol
 
 - name : read yml
   shell: 'cat /etc/unbound/conf.d/00-cluster.conf | grep \.local-data-ptr | sed "s/\"/ /g" | cut -d ":" -f2- | cut -d " " -f 4'
@@ -14,7 +14,7 @@
 
 - name: dynamic hosts
   set_fact:
-    ranger_host_{{ item.0 }} : "{{ item.1 }}"
+    oozie_host_{{ item.0 }} : "{{ item.1 }}"
   with_indexed_items: "{{ all_hosts }}"
 
 - name: simple debug
