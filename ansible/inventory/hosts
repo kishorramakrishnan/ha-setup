@@ -1,13 +1,13 @@
 [all:vars]
-ansible_user=cloudbreak
-ansible_private_key=/root/.ssh/hw-qe-keypair.pem
+ansible_user = cloudbreak
+ansible_private_key = /root/.ssh/hw-qe-keypair.pem
 cluster_name = ambaritest-181010-225759-lk1-1
 ambari_host = ambari-server.hwx.site
 ambari_user = admin
 ambari_password = admin
-install_ranger=true
-install_oozie=true
-install_knox=true
+install_ranger = true
+install_oozie = true
+install_knox = true
 
 
 [ambari]
