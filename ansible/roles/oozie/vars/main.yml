@@ -1,4 +1,4 @@
 oozie_protocol: http
 oozie_port: 11000
-domain: example.com
+domain: oozieexample.com
 webserver_service: httpd
