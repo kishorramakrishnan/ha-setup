@@ -4,6 +4,31 @@
     name: pexpect
   become: yes
 
+- name: "Check if service  exists"
+  run_once: true
+  delegate_to: localhost
+  uri:
+    url: https://{{ ambari_host }}/ambari/api/v1/clusters/{{ cluster_name }}/services/{{ item|upper }}"
+    user: "{{ ambari_user }}"
+    password: "{{ ambari_password }}"
+    status_code: 404,200
+    headers:
+    X-Requested-By: ambari
+    validate_certs: no
+    force_basic_auth: true
+  register: service_check
+  with_items: "{{ plugin_services }}"
+
+- name : debug status code
+  set_fact:
+    install_{{ item.item }}: "{{ ( item.status == 200) }}"
+    with_items: "{{ service_check.results | list }}"
+
+- name : debug install status
+  debug:
+    var: install_{{ item }}
+  with_items: "{{ plugin_services }}"
+
 - name: simple debug
   shell: ls /var/lib/ambari-server/resources/scripts
   become_user: root
@@ -94,37 +119,51 @@
         property_key: policymgr_external_url
         property_value: "{{ ranger_url }}"
 
-      - config_type: ranger-hdfs-security
-        property_key: ranger.plugin.hdfs.policy.rest.url
-        property_value: "{{ ranger_url }}"
 
-      - config_type: ranger-yarn-security
-        property_key: ranger.plugin.yarn.policy.rest.url
-        property_value: "{{ ranger_url }}"
+- name: set properties for ranger HDFS plugin
+  set_fact:
+    ranger_plugin_props: "{{ ranger_plugin_props|default([]) + [ { 'config_type': 'ranger-hdfs-security', 'property_key': 'ranger.plugin.hdfs.policy.rest.url', 'property_value': ranger_url  } ] }}"
+  when: install_hdfs== true
 
-      - config_type: ranger-hbase-security
-        property_key: ranger.plugin.hbase.policy.rest.url
-        property_value: "{{ ranger_url }}"
+- name: set properties for ranger YARN plugin
+  set_fact:
+    ranger_plugin_props: "{{ ranger_plugin_props|default([]) + [ { 'config_type': 'ranger-yarn-security', 'property_key': 'ranger.plugin.yarn.policy.rest.url', 'property_value': ranger_url  } ] }}"
+  when: install_yarn== true
 
-#      - config_type: ranger-hive-security
-#        property_key: ranger.plugin.hive.policy.rest.url
-#        property_value: "{{ ranger_url }}"
+- name: set properties for ranger HBASE plugin
+  set_fact:
+    ranger_plugin_props: "{{ ranger_plugin_props|default([]) + [ { 'config_type': 'ranger-hbase-security', 'property_key': 'ranger.plugin.hbase.policy.rest.url', 'property_value': ranger_url  } ] }}"
+  when: install_hbase== true
 
-      - config_type: ranger-storm-security
-        property_key: ranger.plugin.storm.policy.rest.url
-        property_value: "{{ ranger_url }}"
 
-      - config_type: ranger-atlas-security
-        property_key: ranger.plugin.atlas.policy.rest.url
-        property_value: "{{ ranger_url }}"
+- name: set properties for ranger HIVE plugin
+  set_fact:
+    ranger_plugin_props: "{{ ranger_plugin_props|default([]) + [ { 'config_type': 'ranger-hive-security', 'property_key': 'ranger.plugin.hive.policy.rest.url', 'property_value': ranger_url  } ] }}"
+  when: install_hive== true
 
-      - config_type: ranger-kafka-security
-        property_key: ranger.plugin.kafka.policy.rest.url
-        property_value: "{{ ranger_url }}"
 
-      - config_type: ranger-knox-security
-        property_key: ranger.plugin.knox.policy.rest.url
-        property_value: "{{ ranger_url }}"
+- name: set properties for ranger ATLAS plugin
+  set_fact:
+    ranger_plugin_props: "{{ ranger_plugin_props|default([]) + [ { 'config_type': 'ranger-atlas-security', 'property_key': 'ranger.plugin.atlas.policy.rest.url', 'property_value': ranger_url  } ] }}"
+  when: install_atlas== true
+
+
+- name: set properties for ranger STORM plugin
+  set_fact:
+    ranger_plugin_props: "{{ ranger_plugin_props|default([]) + [ { 'config_type': 'ranger-storm-security', 'property_key': 'ranger.plugin.storm.policy.rest.url', 'property_value': ranger_url  } ] }}"
+  when: install_storm== true
+
+
+- name: set properties for ranger KAFKA plugin
+  set_fact:
+    ranger_plugin_props: "{{ ranger_plugin_props|default([]) + [ { 'config_type': 'ranger-kafka-security', 'property_key': 'ranger.plugin.kafka.policy.rest.url', 'property_value': ranger_url  } ] }}"
+  when: install_kafka== true
+
+
+- name: set properties for ranger KNOX plugin
+  set_fact:
+    ranger_plugin_props: "{{ ranger_plugin_props|default([]) + [ { 'config_type': 'ranger-knox-security', 'property_key': 'ranger.plugin.knox.policy.rest.url', 'property_value': ranger_url  } ] }}"
+  when: install_knox== true
 
 - name: update ranger HA keytab properties
   shell: >
@@ -135,6 +174,19 @@
     --key "{{ item.property_key }}"
     --value "{{ item.property_value }}"
   with_items: "{{ ranger_props }}"
+  delegate_to: "{{ ambari_host }}"
+  become: yes
+  become_user: root
+
+- name: update ranger Plugin properties
+  shell: >
+    /var/lib/ambari-server/resources/scripts/configs.py --unsafe true
+    --action set --host localhost --port "{{ ambari_port }}"
+    --protocol "{{ ambari_protocol }}" --cluster "{{ cluster_name }}"
+    --config-type "{{ item.config_type }}"
+    --key "{{ item.property_key }}"
+    --value "{{ item.property_value }}"
+  with_items: "{{ ranger_plugin_props }}"
   delegate_to: "{{ ambari_host }}"
   become: yes
   become_user: root
