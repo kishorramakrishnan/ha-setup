@@ -1,4 +1,0 @@
----
-- hosts: ambari
-  roles:
-    - name: ranger

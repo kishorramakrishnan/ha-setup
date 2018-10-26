@@ -1,4 +1,4 @@
 ---
 - hosts: ambari
 
-- import_playbook: ranger_ha.yml
+- import_playbook: ha_loadbalancer.yml
