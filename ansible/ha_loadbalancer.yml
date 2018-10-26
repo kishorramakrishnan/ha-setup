@@ -1,10 +1,7 @@
 ---
 - hosts: ambari
   roles:
-    - name: ranger
-      when: install_ranger == 'true'
-    - name: oozie
-      when: install_oozie == 'true'
-    - name: knox
-      when: install_knox == 'true'
+    - { name: ranger, when: install_ranger == 'true' }
+    - { name: oozie, when: install_oozie == 'true' }
+    - { name: knox, when: install_knox == 'true' }
   run_once: true

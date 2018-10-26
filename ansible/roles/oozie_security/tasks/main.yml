@@ -86,10 +86,6 @@
 
       - config_type: oozie-site
         property_key: oozie.base.url
-        property_value: "{{ ranger_url }}"
-
-      - config_type: admin-properties
-        property_key: policymgr_external_url
         property_value: "{{ oozie_url }}"
 
 - name: update oozie HA setup properties
