@@ -77,7 +77,7 @@
   set_fact:
     oozie_url: "{{ oozie_protocol }}://{{ oozie_loadbalancer }}:{{ oozie_port }}/oozie"
 
-- name: set all properties for ranger HA properties
+- name: set all properties for Oozie HA properties
   set_fact:
     oozie_props:
       - config_type: oozie-site
